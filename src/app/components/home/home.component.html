@@ -3,7 +3,7 @@
     <div class="row d-flex flex-wrap">
       <h3>Shop by Category</h3>
       <div *ngFor="let item of categoriesList$ | async" class="card-product-wrapper mx-2 my-3">
-        <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+        <a [routerLink]="'categories/' + item.id" class="text-decoration-none text-inherit">
           <div class="card card-product">
             <div class="card-body text-center py-8">
               <img [src]="item.imageUrl" [alt]="" class="mb-3">
