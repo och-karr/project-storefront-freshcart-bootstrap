@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import {CategoriesService} from "./services/categories.service";
 import {StoresService} from "./services/stores.service";
+import {StoreTagsService} from "./services/store-tags.service";
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,7 +22,7 @@ import {StoresService} from "./services/stores.service";
     CommonModule,
     RouterModule,
   ],
-  providers: [CategoriesService, StoresService],
+  providers: [CategoriesService, StoresService, StoreTagsService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
