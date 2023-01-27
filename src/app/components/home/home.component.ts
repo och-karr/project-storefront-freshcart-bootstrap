@@ -17,13 +17,6 @@ export class HomeComponent {
   readonly stores$: Observable<StoreModel[]> = this._storesService.getAllStores();
   readonly storeTags$: Observable<StoreTagModel[]> = this._storeTagsService.getAllStoreTags();
 
-  readonly storesQuantity = this.stores$.subscribe(
-    stores => {
-      console.log(stores.length)
-      return stores.length;
-    }
-  );
-
   readonly storesList$: Observable<StoreWithTagsNamesQueryModel[]> = combineLatest([
     this.stores$,
     this.storeTags$
