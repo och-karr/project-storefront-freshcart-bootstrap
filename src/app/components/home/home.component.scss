@@ -1,0 +1,17 @@
+.section--category-products {
+  .text-truncate {
+    text-align: left;
+  }
+}
+
+@media (min-width: 992px) {
+  .section--category-products {
+    .card-product-wrapper {
+      width: 20%;
+    }
+
+    .card-product-img {
+      width: 100%;
+    }
+  }
+}
