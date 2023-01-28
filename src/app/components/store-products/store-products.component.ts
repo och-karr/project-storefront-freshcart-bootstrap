@@ -33,7 +33,6 @@ export class StoreProductsComponent {
     this.currentStore$.pipe(shareReplay(1))
   ]).pipe(
     map(([searchVal, products, store]: [any, ProductModel[], StoreModel]) => {
-      console.log(store.id)
       return products
         .filter(product => product.storeIds.includes(store.id))
         .filter(product => product.name.includes(searchVal))
