@@ -1,0 +1,23 @@
+<section *ngIf="categoriesList$ | async as categories" class="my-lg-14 my-8 section--basic-category-products">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-lg-3 col-md-4 mb-4 mb-md-0">
+        <h5>Categories</h5>
+        <ul class="navbar-nav">
+          <li *ngFor="let item of categoriesList$ | async" class="nav-item border-bottom">
+            <a class="nav-link position-relative" [routerLink]="'/categories/' + item.id" role="button">
+              {{item.name}}
+              <i class="icon bi bi bi-chevron-right position-absolute"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-12 col-lg-9 col-md-8" *ngIf="currentCategory$ | async as currentCategory">
+        <div class="col-12 mb-6 bg-gray-100 py-8 px-8 rounded">
+          <h3 class="mb-1">{{ currentCategory.name }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
