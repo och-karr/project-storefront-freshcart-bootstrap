@@ -1,23 +1,41 @@
-<section class="my-lg-14 my-8">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-4 col-12">
-        <ng-container *ngIf="currentStore$ | async as item">
-          <div class="d-flex flex-column">
-            <div>
-              <img [src]="item.logoUrl" [alt]="item.name" class="rounded-circle icon-shape icon-xxl">
+<ng-container *ngIf="currentStore$ | async as store">
+  <section class="my-lg-14 my-8">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-12">
+            <div class="d-flex flex-column">
+              <div>
+                <img [src]="store.logoUrl" [alt]="store.name" class="rounded-circle icon-shape icon-xxl">
+              </div>
+              <div class="mt-4"><h1 class="mb-1 h4">{{store.name}}</h1>
+                <div class="small text-muted"><span>It is only {{ (store.distanceInMeters / 1000).toFixed(1) }} km away from you! </span>
+                </div>
+              </div>
             </div>
-            <div class="mt-4"><h1 class="mb-1 h4">{{item.name}}</h1>
-              <div class="small text-muted"><span>It is only {{ (item.distanceInMeters / 1000).toFixed(1) }} km away from you! </span></div>
+        </div>
+        <div class="col-lg-8 col-12">
+          <form [formGroup]="searchForm">
+            <input type="text" formControlName="search" [placeholder]="'Search ' + store.name">
+          </form>
+        </div>
+        <div *ngFor="let product of currentStoreProducts$ | async" class="col">
+          <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+            <!-- card -->
+            <div class="card card-product">
+              <div class="card-body text-center py-8">
+                <!-- img -->
+                <img [src]="product.imageUrl" [alt]="" class="mb-3">
+                <!-- text -->
+                <div class="text-truncate">{{product.name}}</div>
+              </div>
             </div>
-          </div>
-        </ng-container>
-      </div>
-      <div class="col-lg-8 col-12">
-        test
-      </div>
+          </a>
+        </div>
+
+        <p *ngIf="currentStoreProducts$ | async as aa"></p>
+       </div>
     </div>
-  </div>
-</section>
+  </section>
+</ng-container>
 
 
