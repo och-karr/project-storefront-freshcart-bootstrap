@@ -18,6 +18,10 @@
             <h3 class="mb-1">{{ currentCategory.name }}</h3>
           </div>
           <div class="">
+            <select class="form-select" #sortOpts [formControl]="sortingOption">
+              <option [value]="null" [hidden]="true">Select sorting option</option>
+              <option *ngFor="let item of sortingOptions | async" [value]="item.symbol">{{item.name}}</option>
+            </select>
             <ng-container *ngIf="productsList$ | async as products">
               <p class="mt-4 mb-6"><span class="fw-bold">{{ products.length }}</span> Products found</p>
               <div class="col mb-4" *ngFor="let product of productsList$ | async">
