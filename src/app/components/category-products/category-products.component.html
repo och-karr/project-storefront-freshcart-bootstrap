@@ -19,19 +19,25 @@
           </div>
           <div class="">
             <ng-container *ngIf="productsList$ | async as products">
-              <p>{{ products.length }} Products found</p>
-              <div class="col" *ngFor="let product of productsList$ | async">
+              <p class="mt-4 mb-6"><span class="fw-bold">{{ products.length }}</span> Products found</p>
+              <div class="col mb-4" *ngFor="let product of productsList$ | async">
                 <a [routerLink]="''" class="text-decoration-none text-inherit">
                   <div class="card card-product">
-                    <div class="card-body text-center py-8">
-                      <img [src]="product.imageUrl" [alt]="product.name" class="mb-3">
-                      <div class="text-truncate">{{currentCategory.name}}</div>
-                      <div class="text-truncate">{{product.name}}</div>
-                      <p>{{product.ratingValue}} ({{product.ratingCount}})</p>
-                      <small class="text-warning">
-                        <i *ngFor="let val of countStars(product.ratingValue)" class="bi" [ngClass]="{'bi-star-fill': val === 1, 'bi-star': val === 0, 'bi-star-half': val === 0.5}"></i>
-                      </small>
-                      <p>{{ product.price | currency }}</p>
+                    <div class="card-body text-center py-8 row">
+                      <div class="col-md-4">
+                        <img [src]="product.imageUrl" [alt]="product.name" class="mb-3 card-product-image">
+                      </div>
+                      <div class="col-md-8 d-flex flex-column flex-wrap justify-content-center">
+                        <p class="text-truncate mb-0 card-product-category-name">{{currentCategory.name}}</p>
+                        <p class="text-truncate mb-0 fw-bold">{{product.name}}</p>
+                        <div class="text-truncate pt-2 pb-6">
+                          <small class="text-warning">
+                            <i *ngFor="let val of countStars(product.ratingValue)" class="bi" [ngClass]="{'bi-star-fill': val === 1, 'bi-star': val === 0, 'bi-star-half': val === 0.5}"></i>
+                          </small>
+                          <span class="mb-0">{{product.ratingValue}} ({{product.ratingCount}})</span>
+                        </div>
+                        <p class="text-truncate mb-0 fw-bold card-product-price">{{ product.price | currency }}</p>
+                      </div>
                     </div>
                   </div>
                 </a>
