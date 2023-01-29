@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import {Observable, switchMap} from "rxjs";
-import {CategoryModel} from "../../models/category.model";
-import {CategoriesService} from "../../services/categories.service";
-import {ActivatedRoute} from "@angular/router";
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { CategoryModel } from '../../models/category.model';
+import { ProductModel } from '../../models/product.model';
+import { CategoriesService } from '../../services/categories.service';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-category-products',
@@ -19,7 +22,8 @@ export class CategoryProductsComponent {
       return this._categoriesService.getOneCategory(+data['categoryId'])
     })
   );
+  readonly productsList$: Observable<ProductModel[]> = this._productsService.getAllProducts();
 
-  constructor(private _categoriesService: CategoriesService, private _activatedRoute: ActivatedRoute) {
+  constructor(private _categoriesService: CategoriesService, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService) {
   }
 }

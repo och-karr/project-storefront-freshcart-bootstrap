@@ -15,6 +15,22 @@
       <div class="col-12 col-lg-9 col-md-8" *ngIf="currentCategory$ | async as currentCategory">
         <div class="col-12 mb-6 bg-gray-100 py-8 px-8 rounded">
           <h3 class="mb-1">{{ currentCategory.name }}</h3>
+          <p>5 Products found</p>
+          <div *ngFor="let item of productsList$ | async" class="col">
+            <a [routerLink]="''" class="text-decoration-none text-inherit">
+              <div class="card card-product">
+                <div class="card-body text-center py-8">
+                  <img [src]="item.imageUrl" [alt]="item.name" class="mb-3">
+                  <div class="text-truncate">{{item.name}}</div>
+                  <p>{{item.ratingValue}} ({{item.ratingCount}})</p>
+                  <small class="text-warning">
+                    <i *ngFor="let val of [1, 1, 0.5, 0, 0]" class="bi" [ngClass]="{'bi-star-fill': val === 1, 'bi-star': val === 0, 'bi-star-half': val === 0.5}"></i>
+                  </small>
+                  <p>{{ item.price | currency }}</p>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </div>
