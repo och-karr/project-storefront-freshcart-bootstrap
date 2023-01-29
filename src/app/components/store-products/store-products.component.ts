@@ -19,18 +19,20 @@ export class StoreProductsComponent {
   readonly currentStore$: Observable<StoreModel> = this._activatedRoute.params.pipe(
     switchMap((data) => {
       return this._storesService.getOneStore(+data['storeId'])
-    })
+    }),
+    shareReplay(1)
   );
 
   readonly searchForm: FormGroup = new FormGroup({ search: new FormControl('') });
 
   readonly searchVal$: Observable<string> = this.searchForm.controls['search'].valueChanges.pipe(
-    startWith(''), shareReplay(1)
+    startWith(''),
+    shareReplay(1)
   );
   readonly currentStoreProducts$: Observable<ProductModel[]> = combineLatest([
     this.searchVal$,
     this._productsService.getAllProducts(),
-    this.currentStore$.pipe(shareReplay(1))
+    this.currentStore$
   ]).pipe(
     map(([searchVal, products, store]: [any, ProductModel[], StoreModel]) => {
       return products
