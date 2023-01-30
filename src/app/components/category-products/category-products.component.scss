@@ -4,4 +4,22 @@
       right: 0;
     }
   }
+
+  .card-product {
+    .card-product-image {
+      max-width: 100%;
+    }
+
+    .card-product-category-name {
+      font-size: .8rem;
+    }
+
+    .card-product-price {
+      font-size: 1rem;
+    }
+
+    .text-truncate {
+      text-align: left;
+    }
+  }
 }
