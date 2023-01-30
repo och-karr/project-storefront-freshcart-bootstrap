@@ -2,18 +2,29 @@
   <div class="container">
     <div class="row">
 
+      <!--categories nav-->
       <div class="col-12 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <h5>Categories</h5>
-        <ul class="navbar-nav">
-          <li *ngFor="let item of categoriesList$ | async" class="nav-item border-bottom">
-            <a class="nav-link position-relative" [routerLink]="'/categories/' + item.id" role="button">
-              {{item.name}}
-              <i class="icon bi bi bi-chevron-right position-absolute"></i>
-            </a>
-          </li>
-        </ul>
+        <div class="">
+          <h5>Categories</h5>
+          <ul class="navbar-nav">
+            <li *ngFor="let item of categoriesList$ | async" class="nav-item border-bottom">
+              <a class="nav-link position-relative" [routerLink]="'/categories/' + item.id" role="button">
+                {{item.name}}
+                <i class="icon bi bi bi-chevron-right position-absolute"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <form [formGroup]="filterForm">
+          <div class="">
+            <h5>Price</h5>
+            <input type="number" formControlName="priceFrom" placeholder="Price From">
+            <input type="number" formControlName="priceTo" placeholder="Price To">
+          </div>
+        </form>
       </div>
 
+      <!--products-->
       <div class="col-12 col-lg-9 col-md-8" *ngIf="currentCategory$ | async as currentCategory">
         <div class="col-12 mb-6">
           <div class="bg-gray-100 py-8 px-8 rounded">
@@ -63,7 +74,9 @@
             <p class="mb-1 fw-bold">Limit</p>
             <ul class="pagination">
               <li class="page-item" *ngFor="let item of limits$ | async">
-                <button class="page-link" [disabled]="item === (currentLimit$ | async)" [ngClass]="{'disabled bg-green': item === (currentLimit$ | async)}" (click)="changeLimit(item)">{{item}}</button>
+                <button class="page-link" [disabled]="item === (currentLimit$ | async)"
+                        [ngClass]="{'disabled bg-green': item === (currentLimit$ | async)}"
+                        (click)="changeLimit(item)">{{item}}</button>
               </li>
             </ul>
           </div>
@@ -71,7 +84,9 @@
             <p class="mb-1 fw-bold">Pagination</p>
             <ul class="pagination flex-wrap">
               <li class="page-item" *ngFor="let item of pages$ | async">
-                <button class="page-link" [disabled]="item === (currentPage$ | async)" [ngClass]="{'disabled bg-green': item === (currentPage$ | async)}" (click)="changePage(item)">{{item}}</button>
+                <button class="page-link" [disabled]="item === (currentPage$ | async)"
+                        [ngClass]="{'disabled bg-green': item === (currentPage$ | async)}"
+                        (click)="changePage(item)">{{item}}</button>
               </li>
             </ul>
           </div>
