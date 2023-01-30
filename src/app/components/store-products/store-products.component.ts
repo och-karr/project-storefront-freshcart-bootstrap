@@ -15,6 +15,7 @@ import { ProductsService } from '../../services/products.service';
   encapsulation: ViewEncapsulation.Emulated,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class StoreProductsComponent {
   readonly currentStore$: Observable<StoreModel> = this._activatedRoute.params.pipe(
     switchMap((data) => {

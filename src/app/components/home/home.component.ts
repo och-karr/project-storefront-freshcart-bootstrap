@@ -17,6 +17,7 @@ import {CategoryModel} from "../../models/category.model";
   encapsulation: ViewEncapsulation.Emulated,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class HomeComponent {
   readonly productList$: Observable<ProductModel[]> = this._productsService.getAllProducts().pipe(shareReplay(1));
   readonly categoriesList$: Observable<CategoryModel[]> = this._categoriesService.getAllCategories();

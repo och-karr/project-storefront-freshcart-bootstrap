@@ -22,4 +22,11 @@
       text-align: left;
     }
   }
+
+  .pagination {
+    .page-link.bg-green {
+      background-color: #0aad0a;
+      color: #fff;
+    }
+  }
 }

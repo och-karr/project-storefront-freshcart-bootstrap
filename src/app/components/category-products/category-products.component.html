@@ -1,6 +1,7 @@
 <section *ngIf="categoriesList$ | async as categories" class="my-lg-14 my-8 section--basic-category-products">
   <div class="container">
     <div class="row">
+
       <div class="col-12 col-lg-3 col-md-4 mb-4 mb-md-0">
         <h5>Categories</h5>
         <ul class="navbar-nav">
@@ -12,6 +13,7 @@
           </li>
         </ul>
       </div>
+
       <div class="col-12 col-lg-9 col-md-8" *ngIf="currentCategory$ | async as currentCategory">
         <div class="col-12 mb-6">
           <div class="bg-gray-100 py-8 px-8 rounded">
@@ -30,8 +32,8 @@
                   </select>
                 </div>
               </div>
-              <div class="col mb-4" *ngFor="let product of productsList$ | async">
-                <a [routerLink]="''" class="text-decoration-none text-inherit">
+              <div class="col mb-4" *ngFor="let product of paginatedProductsList$ | async">
+                <a [routerLink]="'/'" class="text-decoration-none text-inherit">
                   <div class="card card-product">
                     <div class="card-body text-center py-8 row">
                       <div class="col-md-4">
@@ -42,7 +44,8 @@
                         <p class="text-truncate mb-0 fw-bold">{{product.name}}</p>
                         <div class="text-truncate pt-2 pb-6">
                           <small class="text-warning">
-                            <i *ngFor="let val of countStars(product.ratingValue)" class="bi" [ngClass]="{'bi-star-fill': val === 1, 'bi-star': val === 0, 'bi-star-half': val === 0.5}"></i>
+                            <i *ngFor="let val of countStars(product.ratingValue)" class="bi"
+                               [ngClass]="{'bi-star-fill': val === 1, 'bi-star': val === 0, 'bi-star-half': val === 0.5}"></i>
                           </small>
                           <span class="mb-0">{{product.ratingValue}} ({{product.ratingCount}})</span>
                         </div>
@@ -55,7 +58,30 @@
             </ng-container>
           </div>
         </div>
+        <div class="row">
+          <div class="col-sm-6">
+            <p class="mb-1 fw-bold">Limit</p>
+            <ul class="pagination">
+              <li class="page-item" *ngFor="let item of limits$ | async">
+                <ng-container *ngIf="currentLimit$ | async as currLimit">
+                  <button class="page-link" [disabled]="item === currLimit" [ngClass]="{'disabled bg-green': item === currLimit}" (click)="changeLimit(item)">{{item}}</button>
+                </ng-container>
+              </li>
+            </ul>
+          </div>
+          <div class="col-sm-6">
+            <p class="mb-1 fw-bold">Pagination</p>
+            <ul class="pagination flex-wrap">
+              <li class="page-item" *ngFor="let item of pages$ | async">
+                <ng-container *ngIf="currentPage$ | async as currPage">
+                  <button class="page-link" [disabled]="item === currPage" [ngClass]="{'disabled bg-green': item === currPage}" (click)="changePage(item)">{{item}}</button>
+                </ng-container>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
 </section>
