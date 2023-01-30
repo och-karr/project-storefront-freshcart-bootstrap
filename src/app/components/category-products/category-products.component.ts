@@ -87,6 +87,15 @@ export class CategoryProductsComponent {
             return 0;
           }
         })
+        .filter(product => {
+          let priceFrom = filterForm.priceFrom === null ? 0 : filterForm.priceFrom;
+          let priceTo = filterForm.priceTo === null ? null : filterForm.priceTo;
+          if (priceTo === null) {
+            return product.price >= priceFrom
+          } else {
+            return product.price >= priceFrom && product.price <= priceTo
+          }
+        })
     }),
     shareReplay(1)
   );
@@ -144,8 +153,5 @@ export class CategoryProductsComponent {
 
   changePage(item: number) {
     this._currentPageSubject.next(item);
-  }
-
-  onFilterFormSubmitted(filterForm: FormGroup): void {
   }
 }
