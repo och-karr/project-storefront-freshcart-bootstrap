@@ -53,7 +53,7 @@ export class CategoryProductsComponent {
     priceTo: new FormControl()
   });
 
-  readonly filterForm$:  Observable<Object> = this.filterForm.valueChanges.pipe(
+  readonly filterForm$: Observable<{priceFrom: number, priceTo: number}> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
       priceTo: null
@@ -87,18 +87,20 @@ export class CategoryProductsComponent {
             return 0;
           }
         })
-        .filter(product => {
-          let priceFrom = filterForm.priceFrom === null ? 0 : filterForm.priceFrom;
-          let priceTo = filterForm.priceTo === null ? null : filterForm.priceTo;
-          if (priceTo === null) {
-            return product.price >= priceFrom
-          } else {
-            return product.price >= priceFrom && product.price <= priceTo
-          }
-        })
+        .filter(product => this.filterByPrice(product, filterForm))
     }),
     shareReplay(1)
   );
+
+  filterByPrice(prod: ProductModel, form: any): boolean {
+    let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
+    let priceTo = form.priceTo === null ? null : form.priceTo;
+    if (priceTo === null) {
+      return prod.price >= priceFrom
+    } else {
+      return prod.price >= priceFrom && prod.price <= priceTo
+    }
+  }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = combineLatest([
