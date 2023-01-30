@@ -10,6 +10,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 import {CategoriesService} from "./services/categories.service";
 import {StoresService} from "./services/stores.service";
 import {ProductsService} from "./services/products.service";
+import {StoreTagsService} from "./services/store-tags.service";
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,7 +23,7 @@ import {ProductsService} from "./services/products.service";
     CommonModule,
     RouterModule,
   ],
-  providers: [CategoriesService, StoresService, ProductsService],
+  providers: [CategoriesService, StoresService, StoreTagsService, ProductsService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
