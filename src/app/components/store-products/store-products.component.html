@@ -1,0 +1,46 @@
+<ng-container *ngIf="currentStore$ | async as store">
+  <section class="my-lg-14 my-8 section--store-products">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-12">
+          <div class="d-flex flex-column">
+            <div>
+              <img [src]="store.logoUrl" [alt]="store.name" class="rounded-circle icon-shape icon-xxl">
+            </div>
+            <div class="mt-4">
+              <h3 class="mb-1 h4">{{store.name}}</h3>
+              <div class="small text-muted"><span>It is only {{ (store.distanceInMeters / 1000).toFixed(1) }} km away from you!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8 col-12 my-8">
+          <form [formGroup]="searchForm">
+            <h5>{{store.name}}</h5>
+            <div class="text-truncate mb-2">Whatever the occasion, we've got you covered.</div>
+            <input type="text" formControlName="search" [placeholder]="'Search ' + store.name">
+          </form>
+        </div>
+      </div>
+      <div class="row mt-8">
+        <h2>{{store.name}} products:</h2>
+      </div>
+      <div class="row">
+        <div class="store-products-container d-flex flex-wrap">
+          <div *ngFor="let product of currentStoreProducts$ | async" class="col-lg-2 col-sm-4 col-12 mx-2 my-2 card-product-wrapper">
+            <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+              <div class="card card-product">
+                <div class="card-body text-center py-8">
+                  <img [src]="product.imageUrl" [alt]="" class="mb-3 card-product-img">
+                  <div class="text-truncate">{{product.name}}</div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ng-container>
+
+
