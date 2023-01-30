@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import {map, Observable} from "rxjs";
+import {map, Observable, shareReplay} from "rxjs";
 import {ProductModel} from "../../models/product.model";
 import {ProductsService} from "../../services/products.service";
 import {CategoriesService} from "../../services/categories.service";
@@ -12,7 +12,7 @@ import {CategoriesService} from "../../services/categories.service";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
-  readonly productList$: Observable<ProductModel[]> = this._productsService.getAllProducts();
+  readonly productList$: Observable<ProductModel[]> = this._productsService.getAllProducts().pipe(shareReplay(1));
 
   readonly fruitsList$: Observable<ProductModel[]> = this.productList$.pipe(
     map((product) => {
