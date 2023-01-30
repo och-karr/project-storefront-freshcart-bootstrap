@@ -5,6 +5,8 @@ import {StoresService} from "../../services/stores.service";
 import {StoreTagsService} from "../../services/store-tags.service";
 import {StoreTagModel} from "../../models/store-tag.model";
 import {StoreWithTagsNamesQueryModel} from "../../query-models/store-with-tags-names.query-model";
+import {CategoryModel} from "../../models/category.model";
+import {CategoriesService} from "../../services/categories.service";
 
 @Component({
   selector: 'app-home',
@@ -14,6 +16,7 @@ import {StoreWithTagsNamesQueryModel} from "../../query-models/store-with-tags-n
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
+  readonly categoriesList$: Observable<CategoryModel[]> = this._categoriesService.getAllCategories();
   readonly stores$: Observable<StoreModel[]> = this._storesService.getAllStores();
   readonly storeTags$: Observable<StoreTagModel[]> = this._storeTagsService.getAllStoreTags();
 
@@ -25,7 +28,7 @@ export class HomeComponent {
       this._mapToStoresWithTagsNames(stores, tags)
   ));
 
-  constructor(private _storesService: StoresService,private _storeTagsService: StoreTagsService) {
+  constructor(private _storesService: StoresService, private _storeTagsService: StoreTagsService, private _categoriesService: CategoriesService) {
   }
 
   private _mapToStoresWithTagsNames(stores: StoreModel[], tags: StoreTagModel[]): StoreWithTagsNamesQueryModel[] {
