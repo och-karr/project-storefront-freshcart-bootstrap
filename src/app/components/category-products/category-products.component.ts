@@ -71,27 +71,26 @@ export class CategoryProductsComponent {
     map(([products, currentCategory, sortingOpt, filterForm]) => {
       return products
         .filter(product => product.categoryId === currentCategory.id)
-        .sort((a, b) => {
-          if (sortingOpt === 'price-high-to-low') {
-            return b.price - a.price;
-          }
-          if (sortingOpt === 'price-low-to-high') {
-            return a.price - b.price;
-          }
-          if (sortingOpt === 'featured') {
-            return b.featureValue - a.featureValue;
-          }
-          if (sortingOpt === 'avg-rating') {
-            return b.ratingValue - a.ratingValue;
-          }
-          else {
-            return 0;
-          }
-        })
+        .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
         .filter(product => this.filterByPrice(product, filterForm))
     }),
     shareReplay(1)
   );
+
+  sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
+    switch (option) {
+      case 'price-high-to-low':
+        return b.price - a.price;
+      case 'price-low-to-high':
+        return a.price - b.price;
+      case 'featured':
+        return b.featureValue - a.featureValue;
+      case 'avg-rating':
+        return b.ratingValue - a.ratingValue;
+      default:
+        return 0;
+    }
+  }
 
   filterByPrice(prod: ProductModel, form: any): boolean {
     let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
@@ -128,15 +127,15 @@ export class CategoryProductsComponent {
 
   countStars(ratingVal: number) {
     let starArray = [];
-    for (let i = 0; i < Math.floor(ratingVal); i++) {
+    for(let i = 0; i < Math.floor(ratingVal); i++) {
       starArray.push(1);
     }
 
-    if (ratingVal > Math.floor(ratingVal)) {
+    if(ratingVal > Math.floor(ratingVal)) {
       starArray.push(.5);
     }
 
-    while (starArray.length < 5) {
+    while(starArray.length < 5) {
       starArray.push(0);
     }
 
