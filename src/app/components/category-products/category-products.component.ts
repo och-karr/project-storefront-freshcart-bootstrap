@@ -66,7 +66,7 @@ export class CategoryProductsComponent {
     this._productsService.getAllProducts(),
     this.currentCategory$,
     this.sortingOption$,
-    this.filterForm.valueChanges
+    this.filterForm$
   ]).pipe(
     map(([products, currentCategory, sortingOpt, filterForm]) => {
       return products
@@ -96,11 +96,7 @@ export class CategoryProductsComponent {
   filterByPrice(prod: ProductModel, form: any): boolean {
     let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
     let priceTo = form.priceTo === null ? null : form.priceTo;
-    if (priceTo === null) {
-      return prod.price >= priceFrom
-    } else {
-      return prod.price >= priceFrom && prod.price <= priceTo
-    }
+    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
   }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
