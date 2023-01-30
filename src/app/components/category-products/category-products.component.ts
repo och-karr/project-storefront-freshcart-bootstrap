@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, combineLatest, of, startWith } from 'rxjs';
+import {BehaviorSubject, Observable, combineLatest, of, startWith, shareReplay} from 'rxjs';
 import {  map, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
@@ -43,17 +43,15 @@ export class CategoryProductsComponent {
   ])
 
   readonly sortingOption: FormControl = new FormControl();
+  readonly sortingOption$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
 
-  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(2);
+  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable();
-
-  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
-  public currentPage$: Observable<number> = this._currentPageSubject.asObservable();
 
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this.currentCategory$,
-    this.sortingOption.valueChanges.pipe(startWith(null))
+    this.sortingOption$
   ]).pipe(
     map(([products, currentCategory, sortingOpt]) => {
       return products.filter(product => product.categoryId === currentCategory.id)
@@ -74,10 +72,11 @@ export class CategoryProductsComponent {
             return 0;
           }
         })
-    })
+    }),
+    shareReplay(1)
   );
 
-  readonly limits$: Observable<number[]> = of([1, 2, 3]);
+  readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = combineLatest([
     this.productsList$,
     this.currentLimit$
@@ -86,6 +85,15 @@ export class CategoryProductsComponent {
       return Array.from({ length: Math.ceil(products.length / limit) }, (_, i) => i + 1)
     })
   )
+
+  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
+  public currentPage$: Observable<number> = combineLatest([
+    this.productsList$,
+    this._currentPageSubject.asObservable(),
+    this.currentLimit$
+  ]).pipe(
+    map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length/currentLimit) < currentPageSubj ? 1 : currentPageSubj)
+)
 
   readonly paginatedProductsList$: Observable<ProductModel[]> = combineLatest([
     this.productsList$,
@@ -116,7 +124,6 @@ export class CategoryProductsComponent {
   }
 
   changeLimit(item: number) {
-    console.log(item)
     this._currentLimitSubject.next(item);
   }
 
