@@ -1,9 +1,24 @@
 .section--store-products {
   .card-product-img {
     width: 100%;
+    max-width: 220px;
   }
 
   .card-product {
     border: 0;
+  }
+
+  .store-products--search-form-input {
+    width: 100%;
+  }
+
+  .store-products--search-form-input-wrapper {
+    width: 100%;
+    max-width: 400px;
+
+    .icon {
+      top: 6px;
+      right: 8px;
+    }
   }
 }
