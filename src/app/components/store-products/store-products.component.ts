@@ -37,7 +37,7 @@ export class StoreProductsComponent {
     map(([searchVal, products, store]: [any, ProductModel[], StoreModel]) => {
       return products
         .filter(product => product.storeIds.includes(store.id))
-        .filter(product => product.name.includes(searchVal))
+        .filter(product => product.name.toLowerCase().includes(searchVal.toLowerCase()))
     })
   );
 
