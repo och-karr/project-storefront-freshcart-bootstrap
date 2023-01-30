@@ -62,14 +62,14 @@
           <div class="col-sm-6">
             <ul class="pagination">
               <li class="page-item" *ngFor="let item of limits$ | async">
-                <button class="page-link" [disabled]="item === (currentLimit$ | async)" (click)="changeLimit(item)">{{item}}</button>
+                <button class="page-link" [disabled]="item === (currentLimit$ | async)" [ngClass]="{'disabled bg-gray-100': item === (currentLimit$ | async)}" (click)="changeLimit(item)">{{item}}</button>
               </li>
             </ul>
           </div>
           <div class="col-sm-6">
             <ul class="pagination">
               <li class="page-item" *ngFor="let item of pages$ | async">
-                <button class="page-link" [disabled]="item === (currentPage$ | async)" (click)="changePage(item)">{{item}}</button>
+                <button class="page-link" [disabled]="item === (currentPage$ | async)" [ngClass]="{'disabled bg-gray-100': item === (currentPage$ | async)}" (click)="changePage(item)">{{item}}</button>
               </li>
             </ul>
           </div>
