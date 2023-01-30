@@ -55,26 +55,25 @@ export class CategoryProductsComponent {
   ]).pipe(
     map(([products, currentCategory, sortingOpt]) => {
       return products.filter(product => product.categoryId === currentCategory.id)
-        .sort((a, b) => {
-          if (sortingOpt === 'price-high-to-low') {
-            return b.price - a.price;
-          }
-          if (sortingOpt === 'price-low-to-high') {
-            return a.price - b.price;
-          }
-          if (sortingOpt === 'featured') {
-            return b.featureValue - a.featureValue;
-          }
-          if (sortingOpt === 'avg-rating') {
-            return b.ratingValue - a.ratingValue;
-          }
-          else {
-            return 0;
-          }
-        })
+        .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
     }),
     shareReplay(1)
   );
+
+  sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
+    switch (option) {
+      case 'price-high-to-low':
+        return b.price - a.price;
+      case 'price-low-to-high':
+        return a.price - b.price;
+      case 'featured':
+        return b.featureValue - a.featureValue;
+      case 'avg-rating':
+        return b.ratingValue - a.ratingValue;
+      default:
+        return 0;
+    }
+  }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = combineLatest([
@@ -93,7 +92,7 @@ export class CategoryProductsComponent {
     this.currentLimit$
   ]).pipe(
     map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length/currentLimit) < currentPageSubj ? 1 : currentPageSubj)
-)
+  )
 
   readonly paginatedProductsList$: Observable<ProductModel[]> = combineLatest([
     this.productsList$,
@@ -105,15 +104,15 @@ export class CategoryProductsComponent {
 
   countStars(ratingVal: number) {
     let starArray = [];
-    for (let i = 0; i < Math.floor(ratingVal); i++) {
+    for(let i = 0; i < Math.floor(ratingVal); i++) {
       starArray.push(1);
     }
 
-    if (ratingVal > Math.floor(ratingVal)) {
+    if(ratingVal > Math.floor(ratingVal)) {
       starArray.push(.5);
     }
 
-    while (starArray.length < 5) {
+    while(starArray.length < 5) {
       starArray.push(0);
     }
 
