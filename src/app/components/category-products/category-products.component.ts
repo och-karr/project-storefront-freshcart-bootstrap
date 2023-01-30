@@ -7,6 +7,7 @@ import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
 import { CategoriesService } from '../../services/categories.service';
 import { ProductsService } from '../../services/products.service';
+import { FilterFormQueryModel } from "../../query-models/filter-form.query-model";
 
 @Component({
   selector: 'app-category-products',
@@ -53,7 +54,7 @@ export class CategoryProductsComponent {
     priceTo: new FormControl()
   });
 
-  readonly filterForm$: Observable<{priceFrom: number, priceTo: number}> = this.filterForm.valueChanges.pipe(
+  readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
       priceTo: null
