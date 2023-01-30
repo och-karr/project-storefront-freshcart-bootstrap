@@ -43,33 +43,33 @@ export class CategoryProductsComponent {
   ])
 
   readonly sortingOption: FormControl = new FormControl();
+  readonly sortingOption$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null));
 
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this.currentCategory$,
-    this.sortingOption.valueChanges.pipe(startWith(null))
+    this.sortingOption$
   ]).pipe(
     map(([products, currentCategory, sortingOpt]) => {
       return products.filter(product => product.categoryId === currentCategory.id)
-        .sort((a, b) => {
-          if (sortingOpt === 'price-high-to-low') {
-            return b.price - a.price;
-          }
-          if (sortingOpt === 'price-low-to-high') {
-            return a.price - b.price;
-          }
-          if (sortingOpt === 'featured') {
-            return b.featureValue - a.featureValue;
-          }
-          if (sortingOpt === 'avg-rating') {
-            return b.ratingValue - a.ratingValue;
-          }
-          else {
-            return 0;
-          }
-        })
+        .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
     })
   );
+
+  sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
+    switch (option) {
+      case 'price-high-to-low':
+        return b.price - a.price;
+      case 'price-low-to-high':
+        return a.price - b.price;
+      case 'featured':
+        return b.featureValue - a.featureValue;
+      case 'avg-rating':
+        return b.ratingValue - a.ratingValue;
+      default:
+        return 0;
+    }
+  }
 
   countStars(ratingVal: number) {
     let starArray = [];
