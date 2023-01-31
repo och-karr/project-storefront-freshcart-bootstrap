@@ -174,7 +174,7 @@ export class CategoryProductsComponent {
     this._currentPageSubject.next(item);
   }
 
-  chosenStores = new Set<string>();
+  private chosenStores = new Set<string>();
 
   onStoreChange(event: any, id: string) {
     event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
