@@ -35,7 +35,7 @@ export class StoreProductsComponent {
     this._productsService.getAllProducts(),
     this.currentStore$
   ]).pipe(
-    map(([searchVal, products, store]: [any, ProductModel[], StoreModel]) => {
+    map(([searchVal, products, store]: [string, ProductModel[], StoreModel]) => {
       return products
         .filter(product => product.storeIds.includes(store.id))
         .filter(product => product.name.toLowerCase().includes(searchVal.toLowerCase()))
