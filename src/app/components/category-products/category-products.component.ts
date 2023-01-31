@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {BehaviorSubject, Observable, combineLatest, of, startWith, shareReplay} from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
 import { CategoriesService } from '../../services/categories.service';
 import { ProductsService } from '../../services/products.service';
+import { FilterFormQueryModel } from "../../query-models/filter-form.query-model";
 
 @Component({
   selector: 'app-category-products',
@@ -48,14 +49,30 @@ export class CategoryProductsComponent {
   private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable().pipe(shareReplay(1));
 
+  readonly filterForm: FormGroup = new FormGroup({
+    priceFrom: new FormControl(),
+    priceTo: new FormControl()
+  });
+
+  readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
+    startWith({
+      priceFrom: null,
+      priceTo: null
+    }),
+    shareReplay(1)
+  )
+
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this.currentCategory$,
-    this.sortingOptionValue$
+    this.sortingOptionValue$,
+    this.filterForm$
   ]).pipe(
-    map(([products, currentCategory, sortingOpt]) => {
-      return products.filter(product => product.categoryId === currentCategory.id)
+    map(([products, currentCategory, sortingOpt, filterForm]) => {
+      return products
+        .filter(product => product.categoryId === currentCategory.id)
         .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
+        .filter(product => this.filterByPrice(product, filterForm))
     }),
     shareReplay(1)
   );
@@ -73,6 +90,12 @@ export class CategoryProductsComponent {
       default:
         return 0;
     }
+  }
+
+  filterByPrice(prod: ProductModel, form: any): boolean {
+    let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
+    let priceTo = form.priceTo === null ? null : form.priceTo;
+    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
   }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);

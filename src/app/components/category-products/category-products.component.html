@@ -2,18 +2,29 @@
   <div class="container">
     <div class="row">
 
+      <!--categories nav-->
       <div class="col-12 col-lg-3 col-md-4 mb-4 mb-md-0">
-        <h5>Categories</h5>
-        <ul class="navbar-nav">
-          <li *ngFor="let item of categoriesList$ | async" class="nav-item border-bottom">
-            <a class="nav-link position-relative" [routerLink]="'/categories/' + item.id" role="button">
-              {{item.name}}
-              <i class="icon bi bi bi-chevron-right position-absolute"></i>
-            </a>
-          </li>
-        </ul>
+        <div class="">
+          <h5>Categories</h5>
+          <ul class="navbar-nav">
+            <li *ngFor="let item of categoriesList$ | async" class="nav-item border-bottom">
+              <a class="nav-link position-relative" [routerLink]="'/categories/' + item.id" role="button">
+                {{item.name}}
+                <i class="icon bi bi bi-chevron-right position-absolute"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <form [formGroup]="filterForm">
+          <div class="mt-8">
+            <h5 class="mb-3">Price</h5>
+            <input class="form-control rounded mb-3" type="number" formControlName="priceFrom" placeholder="Price From">
+            <input class="form-control rounded mb-3" type="number" formControlName="priceTo" placeholder="Price To">
+          </div>
+        </form>
       </div>
 
+      <!--products-->
       <div class="col-12 col-lg-9 col-md-8" *ngIf="currentCategory$ | async as currentCategory">
         <div class="col-12 mb-6">
           <div class="bg-gray-100 py-8 px-8 rounded">
