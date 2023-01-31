@@ -63,8 +63,9 @@ export class CategoryProductsComponent {
     startWith({
       priceFrom: null,
       priceTo: null,
+      store: [],
       rating: 0,
-      searchStore: ''
+      searchStore: '',
     }),
     shareReplay(1)
   )
@@ -77,7 +78,7 @@ export class CategoryProductsComponent {
   );
 
   private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
-  public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith(['']));
+  public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith([]));
 
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
@@ -123,7 +124,7 @@ export class CategoryProductsComponent {
   }
 
   filterByStoreId(ids: string[], prod: ProductModel) {
-    return ids.includes('') ? true : ids.find(id => prod.storeIds.includes(id));
+    return ids.length > 0 ? ids.find(id => prod.storeIds.includes(id)) : true;
   }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
