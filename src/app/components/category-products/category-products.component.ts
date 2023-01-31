@@ -10,6 +10,7 @@ import { ProductsService } from '../../services/products.service';
 import { StoresService } from '../../services/stores.service';
 import {FilterFormQueryModel} from "../../query-models/filter-form.query-model";
 import {StoreModel} from "../../models/store.model";
+import {SortingOptionQueryModel} from "../../query-models/sorting-option.query-model";
 
 @Component({
   selector: 'app-category-products',
@@ -26,7 +27,7 @@ export class CategoryProductsComponent {
       return this._categoriesService.getOneCategory(+data['categoryId'])
     })
   );
-  readonly sortingOptions: Observable<any[]> = of([
+  readonly sortingOptions: Observable<SortingOptionQueryModel[]> = of([
     {
       name: 'Featured',
       symbol: 'featured'
@@ -45,11 +46,10 @@ export class CategoryProductsComponent {
     }
   ])
 
-  readonly sortingOption: FormControl = new FormControl();
-  readonly sortingOption$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
+  private chosenStores: Set<string> = new Set<string>();
 
-  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
-  public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable();
+  readonly sortingOption: FormControl = new FormControl();
+  readonly sortingOptionValue$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
 
   readonly filterForm: FormGroup = new FormGroup({
     priceFrom: new FormControl(),
@@ -83,7 +83,7 @@ export class CategoryProductsComponent {
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this.currentCategory$,
-    this.sortingOption$,
+    this.sortingOptionValue$,
     this.filterFormValues$,
     this.storesIds$
   ]).pipe(
@@ -98,34 +98,18 @@ export class CategoryProductsComponent {
     shareReplay(1)
   );
 
-  sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
-    switch (option) {
-      case 'price-high-to-low':
-        return b.price - a.price;
-      case 'price-low-to-high':
-        return a.price - b.price;
-      case 'featured':
-        return b.featureValue - a.featureValue;
-      case 'avg-rating':
-        return b.ratingValue - a.ratingValue;
-      default:
-        return 0;
-    }
-  }
+  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
+  public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable().pipe(shareReplay(1));
 
-  filterByPrice(prod: ProductModel, form: FilterFormQueryModel): boolean {
-    let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
-    let priceTo = form.priceTo === null ? null : form.priceTo;
-    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
-  }
-
-  filterByRating(prodRatingValue: number, rating: number): boolean {
-    return prodRatingValue >= rating;
-  }
-
-  filterByStoreId(ids: string[], prod: ProductModel) {
-    return ids.length > 0 ? ids.find(id => prod.storeIds.includes(id)) : true;
-  }
+  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
+  public currentPage$: Observable<number> = combineLatest([
+    this.productsList$,
+    this._currentPageSubject.asObservable(),
+    this.currentLimit$
+  ]).pipe(
+    map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length/currentLimit) < currentPageSubj ? 1 : currentPageSubj),
+    shareReplay(1)
+  )
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = combineLatest([
@@ -137,15 +121,6 @@ export class CategoryProductsComponent {
     })
   )
 
-  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
-  public currentPage$: Observable<number> = combineLatest([
-    this.productsList$,
-    this._currentPageSubject.asObservable(),
-    this.currentLimit$
-  ]).pipe(
-    map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length / currentLimit) < currentPageSubj ? 1 : currentPageSubj)
-  )
-
   readonly paginatedProductsList$: Observable<ProductModel[]> = combineLatest([
     this.productsList$,
     this.currentLimit$,
@@ -153,6 +128,9 @@ export class CategoryProductsComponent {
   ]).pipe(
     map(([products, limit, page]) => products.slice(((page - 1) * limit), ((page - 1) * limit + limit)))
   )
+
+  constructor(private _categoriesService: CategoriesService, private _router: Router, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService, private _storesService: StoresService) {
+  }
 
   countStars(ratingVal: number) {
     let starArray = [];
@@ -171,7 +149,37 @@ export class CategoryProductsComponent {
     return starArray;
   }
 
-  constructor(private _categoriesService: CategoriesService, private _router: Router, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService, private _storesService: StoresService) {
+  sortBy(option: (string | null), a: ProductModel, b: ProductModel): number {
+    switch (option) {
+      case 'price-high-to-low':
+        return b.price - a.price;
+      case 'price-low-to-high':
+        return a.price - b.price;
+      case 'featured':
+        return b.featureValue - a.featureValue;
+      case 'avg-rating':
+        return b.ratingValue - a.ratingValue;
+      default:
+        return 0;
+    }
+  }
+
+  filterByPrice(prod: ProductModel, form: FilterFormQueryModel): boolean {
+    let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
+    let priceTo = form.priceTo === null ? null : form.priceTo;
+    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo;
+  }
+
+  filterByRating(prodRatingValue: number, rating: number): boolean {
+    return prodRatingValue >= rating;
+  }
+
+  filterByStoreId(ids: string[], prod: ProductModel): boolean {
+    return ids.length > 0 ? !!ids.find(id => prod.storeIds.includes(id)) : true;
+  }
+
+  doesIncludeId(stores: any, id: string): boolean {
+    return stores.includes(id);
   }
 
   changeLimit(item: number) {
@@ -182,15 +190,9 @@ export class CategoryProductsComponent {
     this._currentPageSubject.next(item);
   }
 
-  private chosenStores: Set<string> = new Set<string>();
-
-  onStoreChange(event: any, id: string) {
+  onStoreChange(event: any, id: string): void {
     event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
 
     this._storesIdsSubject.next(Array.from(this.chosenStores));
-  }
-
-  doesIncludeId(stores: any, id: string) {
-    return stores.includes(id);
   }
 }
