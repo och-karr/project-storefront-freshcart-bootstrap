@@ -115,8 +115,8 @@ export class CategoryProductsComponent {
     return prodRatingValue >= rating;
   }
 
-  filterByStoreId(ids: string[], prod: ProductModel): boolean {
-    return true;
+  filterByStoreId(ids: string[], prod: ProductModel) {
+    return ids.includes('') ? true : ids.find(id => prod.storeIds.includes(id));
   }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
@@ -177,12 +177,8 @@ export class CategoryProductsComponent {
   chosenStores = new Set<string>();
 
   onStoreChange(event: any, id: string) {
-    if (event.target.checked) {
-      this.chosenStores.add(id)
-    } else {
-      this.chosenStores.delete(id)
-    }
+    event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
 
-    this._storesIdsSubject.next(Array.from(this.chosenStores))
+    this._storesIdsSubject.next(Array.from(this.chosenStores));
   }
 }
