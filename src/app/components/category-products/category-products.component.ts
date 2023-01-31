@@ -74,7 +74,14 @@ export class CategoryProductsComponent {
     this._storesService.getAllStores(),
     this.filterFormValues$
   ]).pipe(
-    map(([stores, form]) => stores.filter(store => store.name.toLowerCase().includes(form.searchStore.toLowerCase())))
+    map(([stores, form]) => {
+      return stores.filter(store => {
+        if (store.name !== null && form.searchStore !== null) {
+          return store.name.toLowerCase().includes(form.searchStore.toLowerCase());
+        }
+        return true;
+      })
+    })
   );
 
   private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
