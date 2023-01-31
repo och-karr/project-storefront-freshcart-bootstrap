@@ -51,23 +51,30 @@ export class CategoryProductsComponent {
   private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable();
 
-  readonly storesList$: Observable<StoreModel[]> = this._storesService.getAllStores();
-
   readonly filterForm: FormGroup = new FormGroup({
     priceFrom: new FormControl(),
     priceTo: new FormControl(),
     rating: new FormControl(),
-    store: new FormControl()
+    store: new FormControl(),
+    searchStore: new FormControl()
   });
 
-  readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
+  readonly filterFormValues$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
       priceTo: null,
-      rating: 0
+      rating: 0,
+      searchStore: ''
     }),
     shareReplay(1)
   )
+
+  readonly storesList$: Observable<StoreModel[]> = combineLatest([
+    this._storesService.getAllStores(),
+    this.filterFormValues$
+  ]).pipe(
+    map(([stores, form]) => stores.filter(store => store.name.toLowerCase().includes(form.searchStore.toLowerCase())))
+  );
 
   private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
   public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith(['']));
@@ -76,7 +83,7 @@ export class CategoryProductsComponent {
     this._productsService.getAllProducts(),
     this.currentCategory$,
     this.sortingOption$,
-    this.filterForm$,
+    this.filterFormValues$,
     this.storesIds$
   ]).pipe(
     map(([products, currentCategory, sortingOpt, filterForm, storesIds]) => {
