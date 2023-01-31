@@ -3,4 +3,5 @@ export interface FilterFormQueryModel {
   readonly priceTo: number;
   readonly rating: number;
   readonly store: string[];
+  readonly searchStore: string;
 }

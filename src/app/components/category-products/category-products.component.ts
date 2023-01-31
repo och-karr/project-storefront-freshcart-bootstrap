@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import { BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith } from 'rxjs';
+import {BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith} from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
@@ -10,6 +10,7 @@ import { ProductsService } from '../../services/products.service';
 import { StoresService } from '../../services/stores.service';
 import {FilterFormQueryModel} from "../../query-models/filter-form.query-model";
 import {StoreModel} from "../../models/store.model";
+import {SortingOptionQueryModel} from "../../query-models/sorting-option.query-model";
 
 @Component({
   selector: 'app-category-products',
@@ -26,7 +27,7 @@ export class CategoryProductsComponent {
       return this._categoriesService.getOneCategory(+data['categoryId'])
     })
   );
-  readonly sortingOptions: Observable<any[]> = of([
+  readonly sortingOptions: Observable<SortingOptionQueryModel[]> = of([
     {
       name: 'Featured',
       symbol: 'featured'
@@ -45,29 +46,36 @@ export class CategoryProductsComponent {
     }
   ])
 
-  private chosenStores = new Set<string>();
+  private chosenStores: Set<string> = new Set<string>();
 
   readonly sortingOption: FormControl = new FormControl();
   readonly sortingOptionValue$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
-
-  readonly storesList$: Observable<StoreModel[]> = this._storesService.getAllStores();
 
   readonly filterForm: FormGroup = new FormGroup({
     priceFrom: new FormControl(),
     priceTo: new FormControl(),
     rating: new FormControl(),
-    store: new FormControl()
+    store: new FormControl(),
+    searchStore: new FormControl()
   });
 
-  readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
+  readonly filterFormValues$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
       priceTo: null,
       store: [],
-      rating: 0
+      rating: 0,
+      searchStore: '',
     }),
     shareReplay(1)
   )
+
+  readonly storesList$: Observable<StoreModel[]> = combineLatest([
+    this._storesService.getAllStores(),
+    this.filterFormValues$
+  ]).pipe(
+    map(([stores, form]) => stores.filter(store => store.name.toLowerCase().includes(form.searchStore.toLowerCase())))
+  );
 
   private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
   public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith([]));
@@ -76,7 +84,7 @@ export class CategoryProductsComponent {
     this._productsService.getAllProducts(),
     this.currentCategory$,
     this.sortingOptionValue$,
-    this.filterForm$,
+    this.filterFormValues$,
     this.storesIds$
   ]).pipe(
     map(([products, currentCategory, sortingOpt, filterForm, storesIds]) => {
@@ -118,7 +126,7 @@ export class CategoryProductsComponent {
     this.currentLimit$,
     this.currentPage$
   ]).pipe(
-    map(([products, limit, page]) => products.slice(((page - 1) * limit), ((page-1) * limit + limit)))
+    map(([products, limit, page]) => products.slice(((page - 1) * limit), ((page - 1) * limit + limit)))
   )
 
   constructor(private _categoriesService: CategoriesService, private _router: Router, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService, private _storesService: StoresService) {
@@ -141,7 +149,7 @@ export class CategoryProductsComponent {
     return starArray;
   }
 
-  sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
+  sortBy(option: (string | null), a: ProductModel, b: ProductModel): number {
     switch (option) {
       case 'price-high-to-low':
         return b.price - a.price;
@@ -156,18 +164,22 @@ export class CategoryProductsComponent {
     }
   }
 
-  filterByPrice(prod: ProductModel, form: any): boolean {
+  filterByPrice(prod: ProductModel, form: FilterFormQueryModel): boolean {
     let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
     let priceTo = form.priceTo === null ? null : form.priceTo;
-    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
+    return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo;
   }
 
   filterByRating(prodRatingValue: number, rating: number): boolean {
     return prodRatingValue >= rating;
   }
 
-  filterByStoreId(ids: string[], prod: ProductModel) {
-    return ids.length > 0 ? ids.find(id => prod.storeIds.includes(id)) : true;
+  filterByStoreId(ids: string[], prod: ProductModel): boolean {
+    return ids.length > 0 ? !!ids.find(id => prod.storeIds.includes(id)) : true;
+  }
+
+  doesIncludeId(stores: any, id: string): boolean {
+    return stores.includes(id);
   }
 
   changeLimit(item: number) {
@@ -178,7 +190,7 @@ export class CategoryProductsComponent {
     this._currentPageSubject.next(item);
   }
 
-  onStoreChange(event: any, id: string) {
+  onStoreChange(event: any, id: string): void {
     event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
 
     this._storesIdsSubject.next(Array.from(this.chosenStores));
