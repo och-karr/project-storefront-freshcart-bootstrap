@@ -113,7 +113,7 @@ export class CategoryProductsComponent {
     }
   }
 
-  filterByPrice(prod: ProductModel, form: any): boolean {
+  filterByPrice(prod: ProductModel, form: FilterFormQueryModel): boolean {
     let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
     let priceTo = form.priceTo === null ? null : form.priceTo;
     return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
@@ -182,7 +182,7 @@ export class CategoryProductsComponent {
     this._currentPageSubject.next(item);
   }
 
-  private chosenStores = new Set<string>();
+  private chosenStores: Set<string> = new Set<string>();
 
   onStoreChange(event: any, id: string) {
     event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
