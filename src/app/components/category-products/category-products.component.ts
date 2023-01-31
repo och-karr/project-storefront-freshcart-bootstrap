@@ -51,13 +51,15 @@ export class CategoryProductsComponent {
 
   readonly filterForm: FormGroup = new FormGroup({
     priceFrom: new FormControl(),
-    priceTo: new FormControl()
+    priceTo: new FormControl(),
+    rating: new FormControl()
   });
 
   readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
-      priceTo: null
+      priceTo: null,
+      rating: 0
     }),
     shareReplay(1)
   )
@@ -73,6 +75,7 @@ export class CategoryProductsComponent {
         .filter(product => product.categoryId === currentCategory.id)
         .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
         .filter(product => this.filterByPrice(product, filterForm))
+        .filter(product => this.filterByRating(product.ratingValue, filterForm.rating))
     }),
     shareReplay(1)
   );
@@ -96,6 +99,10 @@ export class CategoryProductsComponent {
     let priceFrom = form.priceFrom === null ? 0 : form.priceFrom;
     let priceTo = form.priceTo === null ? null : form.priceTo;
     return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
+  }
+
+  filterByRating(prodRatingValue: number, rating: number) {
+    return prodRatingValue >= rating;
   }
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
