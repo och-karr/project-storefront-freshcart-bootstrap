@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import {BehaviorSubject, Observable, combineLatest, of, startWith, shareReplay} from 'rxjs';
+import {ActivatedRoute, Router} from '@angular/router';
+import { BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
 import { CategoriesService } from '../../services/categories.service';
 import { ProductsService } from '../../services/products.service';
-import { FilterFormQueryModel } from "../../query-models/filter-form.query-model";
+import { StoresService } from '../../services/stores.service';
+import {FilterFormQueryModel} from "../../query-models/filter-form.query-model";
+import {StoreModel} from "../../models/store.model";
 
 @Component({
   selector: 'app-category-products',
@@ -43,42 +45,101 @@ export class CategoryProductsComponent {
     }
   ])
 
+  private chosenStores = new Set<string>();
+
   readonly sortingOption: FormControl = new FormControl();
   readonly sortingOptionValue$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
 
-  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
-  public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable().pipe(shareReplay(1));
+  readonly storesList$: Observable<StoreModel[]> = this._storesService.getAllStores();
 
   readonly filterForm: FormGroup = new FormGroup({
     priceFrom: new FormControl(),
     priceTo: new FormControl(),
-    rating: new FormControl()
+    rating: new FormControl(),
+    store: new FormControl()
   });
 
   readonly filterForm$: Observable<FilterFormQueryModel> = this.filterForm.valueChanges.pipe(
     startWith({
       priceFrom: null,
       priceTo: null,
+      store: [],
       rating: 0
     }),
     shareReplay(1)
   )
 
+  private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
+  public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith([]));
+
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this.currentCategory$,
     this.sortingOptionValue$,
-    this.filterForm$
+    this.filterForm$,
+    this.storesIds$
   ]).pipe(
-    map(([products, currentCategory, sortingOpt, filterForm]) => {
+    map(([products, currentCategory, sortingOpt, filterForm, storesIds]) => {
       return products
         .filter(product => product.categoryId === currentCategory.id)
         .sort((prod1, prod2) => this.sortBy(sortingOpt, prod1, prod2))
         .filter(product => this.filterByPrice(product, filterForm))
         .filter(product => this.filterByRating(product.ratingValue, filterForm.rating))
+        .filter(product => this.filterByStoreId(storesIds, product))
     }),
     shareReplay(1)
   );
+
+  private _currentLimitSubject: BehaviorSubject<number> = new BehaviorSubject<number>(5);
+  public currentLimit$: Observable<number> = this._currentLimitSubject.asObservable().pipe(shareReplay(1));
+
+  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
+  public currentPage$: Observable<number> = combineLatest([
+    this.productsList$,
+    this._currentPageSubject.asObservable(),
+    this.currentLimit$
+  ]).pipe(
+    map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length/currentLimit) < currentPageSubj ? 1 : currentPageSubj),
+    shareReplay(1)
+  )
+
+  readonly limits$: Observable<number[]> = of([5, 10, 15]);
+  readonly pages$: Observable<number[]> = combineLatest([
+    this.productsList$,
+    this.currentLimit$
+  ]).pipe(
+    map(([products, limit]) => {
+      return Array.from({ length: Math.ceil(products.length / limit) }, (_, i) => i + 1)
+    })
+  )
+
+  readonly paginatedProductsList$: Observable<ProductModel[]> = combineLatest([
+    this.productsList$,
+    this.currentLimit$,
+    this.currentPage$
+  ]).pipe(
+    map(([products, limit, page]) => products.slice(((page - 1) * limit), ((page-1) * limit + limit)))
+  )
+
+  constructor(private _categoriesService: CategoriesService, private _router: Router, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService, private _storesService: StoresService) {
+  }
+
+  countStars(ratingVal: number) {
+    let starArray = [];
+    for(let i = 0; i < Math.floor(ratingVal); i++) {
+      starArray.push(1);
+    }
+
+    if(ratingVal > Math.floor(ratingVal)) {
+      starArray.push(.5);
+    }
+
+    while(starArray.length < 5) {
+      starArray.push(0);
+    }
+
+    return starArray;
+  }
 
   sortBy(option: (string | null), a: ProductModel, b: ProductModel) {
     switch (option) {
@@ -101,56 +162,12 @@ export class CategoryProductsComponent {
     return priceTo === null ? prod.price >= priceFrom : prod.price >= priceFrom && prod.price <= priceTo
   }
 
-  filterByRating(prodRatingValue: number, rating: number) {
+  filterByRating(prodRatingValue: number, rating: number): boolean {
     return prodRatingValue >= rating;
   }
 
-  readonly limits$: Observable<number[]> = of([5, 10, 15]);
-  readonly pages$: Observable<number[]> = combineLatest([
-    this.productsList$,
-    this.currentLimit$
-  ]).pipe(
-    map(([products, limit]) => {
-      return Array.from({ length: Math.ceil(products.length / limit) }, (_, i) => i + 1)
-    })
-  )
-
-  private _currentPageSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
-  public currentPage$: Observable<number> = combineLatest([
-    this.productsList$,
-    this._currentPageSubject.asObservable(),
-    this.currentLimit$
-  ]).pipe(
-    map(([products, currentPageSubj, currentLimit]) => Math.ceil(products.length/currentLimit) < currentPageSubj ? 1 : currentPageSubj),
-    shareReplay(1)
-  )
-
-  readonly paginatedProductsList$: Observable<ProductModel[]> = combineLatest([
-    this.productsList$,
-    this.currentLimit$,
-    this.currentPage$
-  ]).pipe(
-    map(([products, limit, page]) => products.slice(((page - 1) * limit), ((page-1) * limit + limit)))
-  )
-
-  countStars(ratingVal: number) {
-    let starArray = [];
-    for(let i = 0; i < Math.floor(ratingVal); i++) {
-      starArray.push(1);
-    }
-
-    if(ratingVal > Math.floor(ratingVal)) {
-      starArray.push(.5);
-    }
-
-    while(starArray.length < 5) {
-      starArray.push(0);
-    }
-
-    return starArray;
-  }
-
-  constructor(private _categoriesService: CategoriesService, private _router: Router, private _activatedRoute: ActivatedRoute, private _productsService: ProductsService) {
+  filterByStoreId(ids: string[], prod: ProductModel) {
+    return ids.length > 0 ? ids.find(id => prod.storeIds.includes(id)) : true;
   }
 
   changeLimit(item: number) {
@@ -159,5 +176,11 @@ export class CategoryProductsComponent {
 
   changePage(item: number) {
     this._currentPageSubject.next(item);
+  }
+
+  onStoreChange(event: any, id: string) {
+    event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
+
+    this._storesIdsSubject.next(Array.from(this.chosenStores));
   }
 }
