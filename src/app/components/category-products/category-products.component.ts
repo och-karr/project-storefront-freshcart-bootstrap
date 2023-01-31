@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import { BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith } from 'rxjs';
+import {BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith} from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
@@ -188,5 +188,9 @@ export class CategoryProductsComponent {
     event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
 
     this._storesIdsSubject.next(Array.from(this.chosenStores));
+  }
+
+  doesIncludeId(stores: any, id: string) {
+    return stores.includes(id);
   }
 }
