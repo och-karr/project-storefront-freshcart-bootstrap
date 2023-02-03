@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import {combineLatest, Observable, shareReplay} from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, Observable, combineLatest, shareReplay } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { ProductModel } from '../../models/product.model';
 import { ProductsService } from '../../services/products.service';
-import {map, switchMap} from "rxjs/operators";
-import {ActivatedRoute} from "@angular/router";
-import {CategoriesService} from "../../services/categories.service";
+import { CategoriesService } from '../../services/categories.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -33,12 +33,27 @@ export class ProductDetailComponent {
         })
     })
   )
+  private _basketSubject: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+  public basket$: Observable<any[]> = this._basketSubject.asObservable();
 
   constructor(private _productsService: ProductsService, private _categoriesService: CategoriesService, private _activatedRoute: ActivatedRoute) {
   }
 
-  test(item: any) {
-    console.log(item)
+  JSONBasketStorage: string | null = localStorage.getItem('basket');
+  JSONBasketParsed: Record<number, any> = this.JSONBasketStorage !== null ? JSON.parse(this.JSONBasketStorage) : null;
+
+  saveToStorage(item: any) {
+    if (item.id in this.JSONBasketParsed) {
+      this.JSONBasketParsed[item.id]['quantity'] += 1;
+    } else {
+      this.JSONBasketParsed[item.id] = {
+        name: item.name,
+        price: item.price,
+        quantity: 1
+      };
+    }
+
+    localStorage.setItem("basket", JSON.stringify(this.JSONBasketParsed))
   }
 
   countStars(ratingVal: number) {
