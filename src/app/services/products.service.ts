@@ -10,6 +10,9 @@ export class ProductsService {
 
   getAllProducts(): Observable<ProductModel[]> {
     return this._httpClient.get<ProductModel[]>('https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products');
+  }
 
+  geOneProduct(id: number): Observable<ProductModel> {
+    return this._httpClient.get<ProductModel>(`https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products/${id}`);
   }
 }
