@@ -11,6 +11,7 @@ import {CategoriesService} from "./services/categories.service";
 import {StoresService} from "./services/stores.service";
 import {ProductsService} from "./services/products.service";
 import {StoreTagsService} from "./services/store-tags.service";
+import {BasketService} from "./services/basket.service";
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +24,7 @@ import {StoreTagsService} from "./services/store-tags.service";
     CommonModule,
     RouterModule,
   ],
-  providers: [CategoriesService, StoresService, StoreTagsService, ProductsService],
+  providers: [CategoriesService, StoresService, StoreTagsService, ProductsService, BasketService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
