@@ -17,22 +17,22 @@
 
         <div class="py-3">
           <!-- alert -->
-<!--          <div class="alert alert-danger p-2" role="alert">-->
-<!--            You’ve got FREE delivery. Start <a href="#!" class="alert-link">checkout now!</a>-->
-<!--          </div>-->
+          <div *ngIf="serviceFee === 0" class="alert alert-danger p-2" role="alert">
+            You’ve got FREE delivery. Start <a class="alert-link">checkout now!</a>
+          </div>
+<!--          <button (click)="remove()">Clear</button>-->
           <ul class="list-group list-group-flush">
             <!-- list group -->
-            <li class="list-group-item py-3 py-lg-0 px-0 border-top">
+            <li  *ngFor="let product of productsFromBasket | keyvalue" class="list-group-item py-3 py-lg-0 px-0 border-top">
               <!-- row -->
               <div class="row align-items-center">
+<!--                <button (click)="test(product.value)">test</button>-->
                 <div class="col-3 col-md-2">
                   <!-- img -->
-                  <img src="assets/images/products/product-img-1.jpg" alt="Ecommerce" class="img-fluid">
+                  <img [src]="product.value.imageUrl" alt="Ecommerce" class="img-fluid">
                 </div>
                 <div class="col-4 col-md-5">
-                  <!-- title -->
-                  <a href="/" class="text-inherit"><h6 class="mb-0">test</h6></a>
-                  <!-- text -->
+                  <a href="/" class="text-inherit"><h6 class="mb-0">{{product.value.name}}</h6></a>
                   <div class="mt-2 small lh-1">
                     <a href="#" class="text-decoration-none text-inherit">
                       <span class="me-1 align-text-bottom">
@@ -51,16 +51,16 @@
                 <!-- input group -->
                 <div class="col-3 col-md-3 col-lg-2">
                   <!-- input -->
-                  <div class="input-group input-spinner  ">
-                    <input type="button" value="-" class="button-minus  btn  btn-sm " data-field="quantity">
-                    <input type="number" step="1" max="10" value="1" name="quantity" class="quantity-field form-control-sm form-input   ">
-                    <input type="button" value="+" class="button-plus btn btn-sm " data-field="quantity">
-                  </div>
+<!--                  <div class="input-group input-spinner  ">-->
+<!--                    <input type="button" value="-" class="button-minus  btn  btn-sm " data-field="quantity">-->
+<!--                    <input type="number" step="1" max="10" value="1" name="quantity" class="quantity-field form-control-sm form-input   ">-->
+<!--                    <input type="button" value="+" class="button-plus btn btn-sm " data-field="quantity">-->
+<!--                  </div>-->
 
                 </div>
                 <!-- price -->
                 <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                  <span class="fw-bold">$5.00</span>
+                  <span class="fw-bold">{{ product.value.price | currency}}</span>
 
                 </div>
               </div>
@@ -70,8 +70,8 @@
           </ul>
           <!-- btn -->
           <div class="d-flex justify-content-between mt-4">
-            <a href="/" class="btn btn-primary">Continue Shopping</a>
-            <a href="/" class="btn btn-dark">Update Cart</a>
+            <a [routerLink]="'/'" class="btn btn-primary">Continue Shopping</a>
+            <a class="btn btn-dark" (click)="test(productsPricesSum)">Update Cart</a>
           </div>
 
         </div>
@@ -93,7 +93,7 @@
                     <div>Item Subtotal</div>
 
                   </div>
-                  <span>$70.00</span>
+                  <span>{{ productsPricesSum | currency }}</span>
                 </li>
 
                 <!-- list group item -->
@@ -102,7 +102,7 @@
                     <div>Service Fee</div>
 
                   </div>
-                  <span>$3.00</span>
+                  <span>{{ serviceFee | currency }}</span>
                 </li>
                 <!-- list group item -->
                 <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -110,7 +110,7 @@
                     <div class="fw-bold">Subtotal</div>
 
                   </div>
-                  <span class="fw-bold">$67.00</span>
+                  <span class="fw-bold">{{ subtotal | currency }}</span>
                 </li>
               </ul>
 
@@ -118,7 +118,7 @@
             <div class="d-grid mb-1 mt-4">
               <!-- btn -->
               <button class="btn btn-primary btn-lg d-flex justify-content-between align-items-center" type="submit">
-                Go to Checkout <span class="fw-bold">$67.00</span></button>
+                Go to Checkout <span class="fw-bold">{{ subtotal | currency }}</span></button>
             </div>
             <!-- text -->
             <p><small>By placing your order, you agree to be bound by the Freshcart <a href="/">Terms of Service</a>
