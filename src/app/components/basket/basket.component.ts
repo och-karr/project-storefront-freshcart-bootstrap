@@ -32,4 +32,8 @@ export class BasketComponent {
   remove() {
     this._basketService.removeBasketFromStorage();
   }
+
+  removeProduct(key: string) {
+    this._basketService.removeItemFromBasket(key);
+  }
 }

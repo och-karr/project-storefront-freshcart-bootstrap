@@ -32,6 +32,14 @@ export class BasketService {
     localStorage.removeItem('basket');
   }
 
+  removeItemFromBasket(key: any) {
+    let JSONBasketStorage: string | null = localStorage.getItem('basket');
+    let JSONBasketParsed: Record<number, any> = JSONBasketStorage !== null ? JSON.parse(JSONBasketStorage) : null;
+    delete JSONBasketParsed[key];
+    localStorage.removeItem('basket');
+    localStorage.setItem("basket", JSON.stringify(JSONBasketParsed));
+  }
+
   getFromStorage() {
     let JSONBasketStorage: string | null = localStorage.getItem('basket');
     let JSONBasketParsed: Record<number, any> = JSONBasketStorage !== null ? JSON.parse(JSONBasketStorage) : null;
