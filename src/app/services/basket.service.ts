@@ -1,12 +1,31 @@
 import { Injectable } from '@angular/core';
+import {BehaviorSubject, Observable, shareReplay, tap} from "rxjs";
+import { BasketProductQueryModel } from '../query-models/basket-product.query-model';
+import {ProductModel} from "../models/product.model";
 
 @Injectable()
 export class BasketService {
 
-  saveToStorage(item: any, basketItems: any) {
+  private _productsSubject: BehaviorSubject<Record<number, BasketProductQueryModel[]>> =
+    new BehaviorSubject<Record<number, BasketProductQueryModel[]>>(this.getProductsFromLocalStorage());
 
+  public _products$: Observable<Record<number, BasketProductQueryModel[]>> =
+    this._productsSubject.asObservable().pipe(
+      tap((products) =>
+        this.saveProductsToLocalStorage(products)
+      ),
+      shareReplay(1)
+    );
+
+  getProducts(): Observable<Record<number, BasketProductQueryModel[]>> {
+    return this._products$;
+  }
+
+  addProductToBasket(item: ProductModel): void {
+    let updatedBasketItems: Record<number, any> = this._productsSubject.value;
     const createElement = () => {
-      basketItems[item.id] = {
+      updatedBasketItems[+item.id]  = {
+        id: item.id,
         name: item.name,
         price: item.price,
         imageUrl: item.imageUrl,
@@ -14,36 +33,42 @@ export class BasketService {
       };
     }
 
-    if (basketItems) {
-      if (item.id in basketItems) {
-        basketItems[item.id]['quantity'] += 1;
+    if (updatedBasketItems) {
+      if (+item.id in updatedBasketItems) {
+        updatedBasketItems[+item.id]['quantity'] += 1;
       } else {
         createElement();
       }
     } else {
-      basketItems = {}
+      updatedBasketItems = {}
       createElement();
     }
 
-    localStorage.setItem("basket", JSON.stringify(basketItems))
+    this._productsSubject.next(updatedBasketItems);
+    this.saveProductsToLocalStorage(updatedBasketItems);
   }
 
   removeBasketFromStorage() {
+    this._productsSubject.next({});
     localStorage.removeItem('basket');
   }
 
-  removeItemFromBasket(key: any) {
-    let JSONBasketStorage: string | null = localStorage.getItem('basket');
-    let JSONBasketParsed: Record<number, any> = JSONBasketStorage !== null ? JSON.parse(JSONBasketStorage) : null;
-    delete JSONBasketParsed[key];
-    localStorage.removeItem('basket');
-    localStorage.setItem("basket", JSON.stringify(JSONBasketParsed));
+  // removeProductFromBasket(id: string) {
+  //   let basketItems: Record<number, BasketProductQueryModel[]> = this._productsSubject.value;
+  //   delete basketItems[+id];
+  //
+  //   this._productsSubject.next(basketItems);
+  // }
+
+  private getProductsFromLocalStorage(): Record<number, BasketProductQueryModel[]> {
+    const localStorageProducts = window.localStorage.getItem('basket');
+
+    if (localStorageProducts != null) return JSON.parse(localStorageProducts);
+    return {};
   }
 
-  getFromStorage() {
-    let JSONBasketStorage: string | null = localStorage.getItem('basket');
-    let JSONBasketParsed: Record<number, any> = JSONBasketStorage !== null ? JSON.parse(JSONBasketStorage) : null;
-
-    return JSONBasketParsed;
+  private saveProductsToLocalStorage(items: Record<number, BasketProductQueryModel[]>): void {
+    console.log('saved to storage')
+    window.localStorage.setItem('basket', JSON.stringify(items));
   }
 }

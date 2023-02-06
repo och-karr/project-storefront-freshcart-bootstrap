@@ -40,10 +40,8 @@ export class ProductDetailComponent {
   constructor(private _basketService: BasketService, private _productsService: ProductsService, private _categoriesService: CategoriesService, private _activatedRoute: ActivatedRoute) {
   }
 
-  productsFromBasket: any = this._basketService.getFromStorage();
-
-  saveProductsToBasket(product: any) {
-    this._basketService.saveToStorage(product, this.productsFromBasket);
+  saveProductsToBasket(product: ProductModel) {
+    this._basketService.addProductToBasket(product);
   }
 
   countStars(ratingVal: number) {

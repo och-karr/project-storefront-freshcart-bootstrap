@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import {BasketService} from "../../services/basket.service";
+import {Observable, combineLatest, map} from 'rxjs';
+import { ProductModel } from '../../models/product.model';
+import { BasketService } from '../../services/basket.service';
+import { ProductsService } from '../../services/products.service';
+import {BasketProductQueryModel} from "../../query-models/basket-product.query-model";
 
 @Component({
   selector: 'app-basket',
@@ -9,31 +13,30 @@ import {BasketService} from "../../services/basket.service";
 })
 export class BasketComponent {
 
-  productsFromBasket: Record<any, any> = this._basketService.getFromStorage();
-  productsPricesSum = (() => {
-    let sum = 0;
-    Object.entries(this.productsFromBasket).forEach(([key, value]) => {
-      sum += value.price;
-    });
+  readonly productsFromBasket$: Observable<any[]> = combineLatest([
+    this._productsService.getAllProducts(),
+    this._basketService.getProducts()
+  ]).pipe(
+    map(([allProducts, savedProducts]: [ProductModel[], Record<number, any>]) => {
+      return allProducts
+        .filter(product => product.id in savedProducts)
+        .map(product => ({
+          name: product.name,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          quantity: savedProducts[+product.id].quantity
+        }))
+    })
+  )
 
-    return sum;
-  })();
-
-  serviceFee = this.productsPricesSum > 50 ? 0 : 3;
-  subtotal = this.productsPricesSum + this.serviceFee;
-
-  constructor(private _basketService: BasketService) {
-  }
-
-  test(productsFromBasket: any) {
-    console.log(productsFromBasket)
+  constructor(private _basketService: BasketService, private _productsService: ProductsService) {
   }
 
   remove() {
     this._basketService.removeBasketFromStorage();
   }
 
-  removeProduct(key: string) {
-    this._basketService.removeItemFromBasket(key);
-  }
+  // removeProduct(itemId: string) {
+  //   this._basketService.removeProductFromBasket(itemId);
+  // }
 }
