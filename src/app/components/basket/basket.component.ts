@@ -8,6 +8,7 @@ import {BasketProductQueryModel} from "../../query-models/basket-product.query-m
 @Component({
   selector: 'app-basket',
   templateUrl: './basket.component.html',
+  styleUrls: ['./basket.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -21,6 +22,7 @@ export class BasketComponent {
       return allProducts
         .filter(product => product.id in savedProducts)
         .map(product => ({
+          id: product.id,
           name: product.name,
           imageUrl: product.imageUrl,
           price: product.price,
@@ -36,7 +38,7 @@ export class BasketComponent {
     this._basketService.removeBasketFromStorage();
   }
 
-  // removeProduct(itemId: string) {
-  //   this._basketService.removeProductFromBasket(itemId);
-  // }
+  removeProduct(prod: any, itemId: string) {
+    this._basketService.removeProductFromBasket(itemId);
+  }
 }

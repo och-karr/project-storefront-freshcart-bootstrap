@@ -53,12 +53,13 @@ export class BasketService {
     localStorage.removeItem('basket');
   }
 
-  // removeProductFromBasket(id: string) {
-  //   let basketItems: Record<number, BasketProductQueryModel[]> = this._productsSubject.value;
-  //   delete basketItems[+id];
-  //
-  //   this._productsSubject.next(basketItems);
-  // }
+  removeProductFromBasket(id: string) {
+    let basketItems: Record<number, BasketProductQueryModel[]> = this._productsSubject.value;
+
+    delete basketItems[+id];
+
+    this._productsSubject.next(basketItems);
+  }
 
   private getProductsFromLocalStorage(): Record<number, BasketProductQueryModel[]> {
     const localStorageProducts = window.localStorage.getItem('basket');
