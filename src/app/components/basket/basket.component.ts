@@ -4,6 +4,7 @@ import { ProductModel } from '../../models/product.model';
 import { BasketService } from '../../services/basket.service';
 import { ProductsService } from '../../services/products.service';
 import {BasketProductQueryModel} from "../../query-models/basket-product.query-model";
+import {PurchaseValuesQueryModel} from "../../query-models/purchase-values.query-model";
 
 @Component({
   selector: 'app-basket',
@@ -14,7 +15,7 @@ import {BasketProductQueryModel} from "../../query-models/basket-product.query-m
 })
 export class BasketComponent {
 
-  readonly productsFromBasket$: Observable<any[]> = combineLatest([
+  readonly productsFromBasket$: Observable<BasketProductQueryModel[]> = combineLatest([
     this._productsService.getAllProducts(),
     this._basketService.getProducts()
   ]).pipe(
@@ -28,6 +29,21 @@ export class BasketComponent {
           price: product.price,
           quantity: savedProducts[+product.id].quantity
         }))
+    }),
+  )
+
+  private deliveryFreeFrom: number = 50;
+  private defaultServiceFee: number = 3;
+
+  readonly purchaseValues$: Observable<PurchaseValuesQueryModel> = this.productsFromBasket$.pipe(
+    map(products => {
+      const productsPricesSum = products.reduce((a, c) => a += (c.quantity * c.price), 0);
+      const serviceFee = productsPricesSum < this.deliveryFreeFrom ? this.defaultServiceFee : 0;
+      return {
+        productsPricesSum: productsPricesSum,
+        serviceFee: serviceFee,
+        subtotal: productsPricesSum + serviceFee
+      }
     })
   )
 

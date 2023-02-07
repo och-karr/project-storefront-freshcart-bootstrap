@@ -6,6 +6,8 @@ import {ProductModel} from "../models/product.model";
 @Injectable()
 export class BasketService {
 
+  private storageItemName = 'basket';
+
   private _productsSubject: BehaviorSubject<Record<number, BasketProductQueryModel[]>> =
     new BehaviorSubject<Record<number, BasketProductQueryModel[]>>(this.getProductsFromLocalStorage());
 
@@ -50,7 +52,7 @@ export class BasketService {
 
   removeBasketFromStorage() {
     this._productsSubject.next({});
-    localStorage.removeItem('basket');
+    localStorage.removeItem(this.storageItemName);
   }
 
   removeProductFromBasket(id: string) {
@@ -62,14 +64,13 @@ export class BasketService {
   }
 
   private getProductsFromLocalStorage(): Record<number, BasketProductQueryModel[]> {
-    const localStorageProducts = window.localStorage.getItem('basket');
+    const localStorageProducts = window.localStorage.getItem(this.storageItemName);
 
     if (localStorageProducts != null) return JSON.parse(localStorageProducts);
     return {};
   }
 
   private saveProductsToLocalStorage(items: Record<number, BasketProductQueryModel[]>): void {
-    console.log('saved to storage')
-    window.localStorage.setItem('basket', JSON.stringify(items));
+    window.localStorage.setItem(this.storageItemName, JSON.stringify(items));
   }
 }

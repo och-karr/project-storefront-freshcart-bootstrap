@@ -6,6 +6,7 @@ import { ProductModel } from '../../models/product.model';
 import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import {BasketService} from "../../services/basket.service";
+import {CategoryModel} from "../../models/category.model";
 
 @Component({
   selector: 'app-product-detail',
@@ -23,7 +24,7 @@ export class ProductDetailComponent {
     shareReplay(1)
   );
 
-  readonly currentCategory$: Observable<any> = combineLatest([
+  readonly currentCategory$: Observable<CategoryModel | undefined> = combineLatest([
     this.currentProduct$,
     this._categoriesService.getAllCategories()
   ]).pipe(
