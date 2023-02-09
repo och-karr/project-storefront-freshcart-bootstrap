@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, Observable, Subject, combineLatest, of, shareReplay, startWith} from 'rxjs';
+import {BehaviorSubject, Observable, combineLatest, of, shareReplay, startWith, take} from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
@@ -46,8 +46,6 @@ export class CategoryProductsComponent {
     }
   ])
 
-  private chosenStores: Set<string> = new Set<string>();
-
   readonly sortingOption: FormControl = new FormControl();
   readonly sortingOptionValue$: Observable<string | null> = this.sortingOption.valueChanges.pipe(startWith(null), shareReplay(1));
 
@@ -84,7 +82,7 @@ export class CategoryProductsComponent {
     })
   );
 
-  private _storesIdsSubject: Subject<string[]> = new Subject<string[]>();
+  private _storesIdsSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   public storesIds$: Observable<string[]> = this._storesIdsSubject.asObservable().pipe(startWith([]));
 
   readonly productsList$: Observable<ProductModel[]> = combineLatest([
@@ -198,8 +196,10 @@ export class CategoryProductsComponent {
   }
 
   onStoreChange(event: any, id: string): void {
-    event.target.checked ? this.chosenStores.add(id) : this.chosenStores.delete(id);
-
-    this._storesIdsSubject.next(Array.from(this.chosenStores));
+    this._storesIdsSubject.pipe(take(1)).subscribe(storesIds => {
+      let chosenStores: Set<string> = new Set<string>(storesIds);
+      event.target.checked ? chosenStores.add(id) : chosenStores.delete(id);
+      this._storesIdsSubject.next(Array.from(chosenStores));
+    })
   }
 }
