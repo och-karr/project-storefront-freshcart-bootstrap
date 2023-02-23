@@ -101,7 +101,7 @@
                 </div>
               </div>
               <div class="col mb-4" *ngFor="let product of paginatedProductsList$ | async">
-                <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+                <a [routerLink]="'/products/' + product.id" class="text-decoration-none text-inherit">
                   <div class="card card-product">
                     <div class="card-body text-center py-8 row">
                       <div class="col-md-4">

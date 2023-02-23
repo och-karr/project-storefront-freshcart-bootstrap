@@ -60,7 +60,7 @@
     <div class="row">
       <h3 class="mb-3">Fruits & Vegetables</h3>
       <div *ngFor="let item of fruitsList$ | async" class="card-product-wrapper col-md-4">
-        <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+        <a [routerLink]="'products/' + item.id" class="text-decoration-none text-inherit">
           <div class="card card-product my-2">
             <div class="card-body text-center py-8">
               <img [src]="item.imageUrl" [alt]="" class="mb-3 card-product-img">
@@ -74,7 +74,7 @@
     <div class="row mt-12">
       <h3 class="mb-3">Snacks & Munchies</h3>
       <div *ngFor="let item of snacksList$ | async" class="card-product-wrapper">
-        <a [routerLink]="'/'" class="text-decoration-none text-inherit">
+        <a [routerLink]="'products/' + item.id" class="text-decoration-none text-inherit">
           <div class="card card-product my-2">
             <div class="card-body text-center py-8">
               <img [src]="item.imageUrl" [alt]="" class="mb-3 card-product-img">

@@ -5,7 +5,7 @@ import {RouterModule} from "@angular/router";
 import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
-    imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   declarations: [CategoryProductsComponent],
   providers: [],
   exports: [CategoryProductsComponent]
